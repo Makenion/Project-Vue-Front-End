@@ -63,6 +63,31 @@ const providerForm = ref<ProviderForm>({
   phone: '',
 })
 
+const showSuccessModal = ref(false)
+const successMessage = ref('')
+
+function validateEmail(email: string) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return re.test(email)
+}
+function validatePassword(password: string) {
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
+    password,
+  )
+}
+function validatePhone(phone: string) {
+  return /^\+569\d{8}$/.test(phone)
+}
+function isAdult(birthDate: string) {
+  if (!birthDate) return false
+  const today = new Date()
+  const birth = new Date(birthDate)
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age >= 18
+}
+
 const handleSubmit = async () => {
   try {
     // Aquí iría la lógica de autenticación
@@ -79,13 +104,34 @@ const handleClientSubmit = async () => {
       alert('Las contraseñas no coinciden')
       return
     }
-    // Aquí iría la lógica de registro de cliente
-    console.log('Registro de cliente:', clientForm.value)
-    router.push('/dashboard')
+    if (!validateEmail(clientForm.value.email)) {
+      alert('Correo electrónico inválido')
+      return
+    }
+    if (!validatePassword(clientForm.value.password)) {
+      alert(
+        'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo',
+      )
+      return
+    }
+    if (!validatePhone(clientForm.value.phone)) {
+      alert('El número de celular debe tener el formato +569XXXXXXXX')
+      return
+    }
+    // Guardar usuario en localStorage
+    localStorage.setItem('user', JSON.stringify({ ...clientForm.value, type: 'client' }))
+    successMessage.value = '¡Registro exitoso! Bienvenido/a a la plataforma.'
+    showSuccessModal.value = true
+    setTimeout(() => {
+      showSuccessModal.value = false
+      router.push('/profile')
+    }, 2000)
   } catch (error) {
     console.error('Error en el registro:', error)
   }
 }
+
+const generateRandomId = () => Math.floor(Math.random() * 1000000)
 
 const handleProviderSubmit = async () => {
   try {
@@ -93,9 +139,37 @@ const handleProviderSubmit = async () => {
       alert('Las contraseñas no coinciden')
       return
     }
-    // Aquí iría la lógica de registro de proveedor
-    console.log('Registro de proveedor:', providerForm.value)
-    router.push('/dashboard')
+    if (!validateEmail(providerForm.value.email)) {
+      alert('Correo electrónico inválido')
+      return
+    }
+    if (!validatePassword(providerForm.value.password)) {
+      alert(
+        'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo',
+      )
+      return
+    }
+    if (!validatePhone(providerForm.value.phone)) {
+      alert('El número de celular debe tener el formato +569XXXXXXXX')
+      return
+    }
+    if (!isAdult(providerForm.value.birthDate)) {
+      alert('Debes ser mayor de edad para registrarte')
+      return
+    }
+    // Generar ID aleatorio para el prestador
+    const providerId = generateRandomId()
+    // Guardar usuario en localStorage
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ ...providerForm.value, type: 'provider', id: providerId }),
+    )
+    successMessage.value = '¡Registro exitoso! Bienvenido/a a la plataforma.'
+    showSuccessModal.value = true
+    setTimeout(() => {
+      showSuccessModal.value = false
+      router.push(`/provider/${providerId}`)
+    }, 2000)
   } catch (error) {
     console.error('Error en el registro:', error)
   }
@@ -501,6 +575,53 @@ const handleGoogleLogin = async () => {
           </button>
         </div>
       </form>
+
+      <div
+        v-if="showSuccessModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
+      >
+        <div
+          class="bg-white rounded-xl shadow-2xl p-8 text-center max-w-xs mx-auto animate-bounce-in"
+        >
+          <svg
+            class="mx-auto mb-4 text-green-500"
+            width="48"
+            height="48"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="10" fill="#22c55e" />
+            <path
+              d="M8 12.5l2.5 2.5L16 9.5"
+              stroke="#fff"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <h2 class="text-2xl font-bold text-green-600 mb-2">¡Éxito!</h2>
+          <p class="text-gray-700">{{ successMessage }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.animate-bounce-in {
+  animation: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+</style>

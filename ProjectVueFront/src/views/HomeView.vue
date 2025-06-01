@@ -99,11 +99,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-// import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 const especialidad = ref('')
 const ubicacion = ref('')
-// const router = useRouter()
+const router = useRouter()
 
 function buscar() {
   // Aquí puedes redirigir a la página de resultados o filtrar
@@ -152,9 +152,7 @@ const profesionales = [
 ]
 
 function verPerfil(id: number) {
-  // Aquí puedes redirigir al perfil real
-  // router.push(`/provider/${id}`)
-  alert(`Ir al perfil del profesional con id: ${id}`)
+  router.push(`/provider/${id}`)
 }
 </script>
 

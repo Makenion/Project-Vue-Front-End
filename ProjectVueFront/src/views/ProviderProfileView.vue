@@ -28,19 +28,22 @@ const tabs = [
   { id: 'informacion', label: 'Información' },
 ]
 
+// Función original para cargar datos, sin lógica de edición ni localStorage directo
 const fetchProviderData = async () => {
   try {
     loading.value = true
     error.value = null
+    const providerId = Number(route.params.id)
 
-    // Obtener datos del proveedor
-    provider.value = await providerService.getProvider()
+    // Obtener datos del proveedor (usando el servicio, que aún tiene mock data)
+    // NOTA: Aquí es donde necesitaremos ajustar la lógica más adelante para cargar desde localStorage si es el perfil propio
+    provider.value = await providerService.getProvider(providerId)
 
     // Obtener servicios
-    services.value = await providerService.getProviderServices()
+    services.value = await providerService.getProviderServices(providerId)
 
     // Obtener reseñas
-    reviews.value = await providerService.getProviderReviews()
+    reviews.value = await providerService.getProviderReviews(providerId)
   } catch (err) {
     error.value = 'Error al cargar los datos del proveedor'
     console.error('Error:', err)
@@ -290,3 +293,9 @@ onMounted(fetchProviderData)
     </template>
   </div>
 </template>
+
+<style scoped>
+.transition-shadow {
+  transition: all 0.3s ease;
+}
+</style>

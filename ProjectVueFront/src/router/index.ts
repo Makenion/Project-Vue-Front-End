@@ -18,6 +18,11 @@ const router = createRouter({
       component: () => import('../views/LoginView.vue'),
     },
     {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('../views/PrivacyPolicyView.vue'),
+    },
+    {
       path: '/recover-password',
       name: 'recover-password',
       component: () => import('../views/RecoverPasswordView.vue'),
@@ -26,6 +31,16 @@ const router = createRouter({
       path: '/provider/:id',
       name: 'provider-profile',
       component: () => import('../views/ProviderProfileView.vue'),
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: () => import('../views/AboutUsView.vue'),
+    },
+    {
+      path: '/contact',
+      name: 'contact',
+      component: () => import('../views/ContactView.vue'),
     },
   ],
 })

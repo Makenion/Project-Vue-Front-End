@@ -1,4 +1,4 @@
-import { mockProvider, mockServices, mockReviews } from './mockData'
+import { mockProviders, mockServices, mockReviews } from './mockData'
 
 export interface Provider {
   id: number
@@ -52,20 +52,32 @@ export interface BookingResponse {
 }
 
 export const providerService = {
-  async getProvider(): Promise<Provider> {
+  async getProvider(id: number): Promise<Provider> {
     // Simulamos un delay para simular la llamada a la API
     await new Promise((resolve) => setTimeout(resolve, 500))
-    return mockProvider
+    const provider = mockProviders[id]
+    if (!provider) {
+      throw new Error('Proveedor no encontrado')
+    }
+    return provider
   },
 
-  async getProviderServices(): Promise<Service[]> {
+  async getProviderServices(id: number): Promise<Service[]> {
     await new Promise((resolve) => setTimeout(resolve, 500))
-    return mockServices
+    const services = mockServices[id]
+    if (!services) {
+      throw new Error('Servicios no encontrados')
+    }
+    return services
   },
 
-  async getProviderReviews(): Promise<Review[]> {
+  async getProviderReviews(id: number): Promise<Review[]> {
     await new Promise((resolve) => setTimeout(resolve, 500))
-    return mockReviews
+    const reviews = mockReviews[id]
+    if (!reviews) {
+      throw new Error('Reseñas no encontradas')
+    }
+    return reviews
   },
 
   async createReview(providerId: number, review: Omit<Review, 'id'>): Promise<Review> {
